@@ -5,9 +5,12 @@ import asyncio
 class Game:
     #need to make dealer score
     #need to make it so u can hit until you are satisfied or until you go over 21
-    def __init__(self, user: int) -> None:
+    def __init__(self, user: int, card1: (str, int), card2: (str, int)) -> None:
         self.ongoing = True
-        self.score = random.randint(4, 21)
+        self.card1 = card1
+        self.card2 = card2
+
+        self.score = card1[1] + card2[1]
         self.dealer_score = random.randint(4, 21)
         self.user = user
         print("Making new game for user:", self.user)

@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import responses
 from game import Game 
+from deck import get_random
 
 client = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
@@ -65,8 +66,10 @@ def run_bot():
     @client.tree.command(name="new_game")
     async def new_game(interaction: discord.Interaction):
         global game
-        game = Game(interaction.user.id)
-        await interaction.response.send_message(f"Creating new game!\nCurrent score: {game.score}, Type command: 'Hit' or 'Stand'?")
+        (key1, value1) = get_random()
+        (key2, value2) = get_random()
+        game = Game(interaction.user.id, (key1, value1), (key2, value2))
+        await interaction.response.send_message(f"Creating new game!\nCurrent score: {game.score}, Dealer score: {game.dealer_score}, Type command: 'Hit' or 'Stand'?")
 
     @client.tree.command(name="hit")
     async def hit(interaction: discord.Interaction):
