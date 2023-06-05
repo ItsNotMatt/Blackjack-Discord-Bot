@@ -66,10 +66,10 @@ def run_bot():
     @client.tree.command(name="new_game")
     async def new_game(interaction: discord.Interaction):
         global game
-        (key1, value1) = get_random()
-        (key2, value2) = get_random()
-        game = Game(interaction.user.id, (key1, value1), (key2, value2))
-        await interaction.response.send_message(f"Creating new game!\nCurrent score: {game.score}, Dealer score: {game.dealer_score}, Type command: 'Hit' or 'Stand'?")
+        game = Game(interaction.user.id)
+        await interaction.response.send_message(f"Creating new game!\nCurrent cards: {game.card1[0]}, {game.card2[0]}\n "
+                                    f"Dealer card: {game.dealer_card1[0]}, other card hidden.\n" 
+                                    f"Type command: 'Hit' or 'Stand'?")
 
     @client.tree.command(name="hit")
     async def hit(interaction: discord.Interaction):

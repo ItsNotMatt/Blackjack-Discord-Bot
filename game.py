@@ -1,24 +1,35 @@
 import random
 import bot
 import asyncio
+import deck
 
 class Game:
     #need to make dealer score
     #need to make it so u can hit until you are satisfied or until you go over 21
-    def __init__(self, user: int, card1: (str, int), card2: (str, int)) -> None:
+    def __init__(self, user: int) -> None:
         self.ongoing = True
-        self.card1 = card1
-        self.card2 = card2
+        self.deck = deck.make_deck() 
+        (key, value) = deck.get_random(self.deck)
+        self.card1 = (key, value)
+        (key, value) = deck.get_random(self.deck)
+        self.card2 = (key, value)
 
-        self.score = card1[1] + card2[1]
-        self.dealer_score = random.randint(4, 21)
+        (key, value) = deck.get_random(self.deck)
+        self.dealer_card1 = (key, value)
+        (key, value) = deck.get_random(self.deck)
+        self.dealer_card2 = (key, value)
+
+        self.score = self.card1[1] + self.card2[1]
+        self.dealer_score = self.dealer_card1[1] + self.dealer_card1[1] 
         self.user = user
         print("Making new game for user:", self.user)
         asyncio.create_task(self.check_score())
 
     async def hit(self):
-        self.score = self.score + random.randint(2, 12)
-        print("score:", self.score)
+        (k, v) = deck.get_random(self.deck)
+        card = (k, v)
+        self.score = self.score + card[1] 
+        print(f"New card: {card[0]}\nScore:{self.score}")
         await self.check_score()
 
     async def check_score(self):
