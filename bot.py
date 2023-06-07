@@ -21,13 +21,15 @@ async def send_message(message):
     channel = client.get_channel(last_channel_id)
     await channel.send(message)
 
-async def won_game():
+async def won_round():
+    game.earnings()
     channel = client.get_channel(last_channel_id)
-    await channel.send(f"You won with a score of {game.score}")
+    await channel.send(f"You won this round with a score of {game.round.score}")
 
-async def lost_game():
+async def lost_round():
+    game.earnings()
     channel = client.get_channel(last_channel_id)
-    await channel.send(f"You lost with a score of {game.score}")
+    await channel.send(f"You lost this round with a score of {game.round.score}")
 
 def run_bot():
     TOKEN = 'MTA5MjE0MDk1MTY3OTUzMzA2Ng.G0XIiJ.MfcsWnbCR-LtasZ6I0DaS381c8puhBkuGax9y0'
@@ -69,20 +71,27 @@ def run_bot():
         await interaction.response.send_message(f"pong! latency is {client.latency}")
 
     @client.tree.command(name="new_game")
-    async def new_game(interaction: discord.Interaction):
+    async def new_game(interaction: discord.Interaction, mentioned_user: discord.Member = None):
+        mentioned_id = mentioned_user.id if mentioned_user else 0
         last_channel_id = interaction.channel_id
         global game
-        game = Game(interaction.user.id)
-        await interaction.response.send_message(f"Creating new game!\nCurrent cards: {game.player_hand}\n"
-                                    f"Dealer card: {game.dealer_hand[0][0]}, other card hidden.\n" 
+        game = Game([interaction.user.id])
+        await interaction.response.send_message(f"Creating new game!\nCurrent cards: {game.round.player_hand}\n"
+                                    f"Dealer card: {game.round.dealer_hand[0][0]}, other card hidden.\n" 
                                     f"Type command: 'Hit' or 'Stand'?")
+
+    @client.tree.command(name="next_round")
+    async def next_round(interaction: discord.Interaction):
+        pass
+        
+
 
     @client.tree.command(name="hit")
     async def hit(interaction: discord.Interaction):
         last_channel_id = interaction.channel_id
-        if (game.ongoing):
-           await game.hit()
-           res = game.get_hands()
+        if (game.round.ongoing):
+           await game.round.hit()
+           res = game.round.get_hands()
            await interaction.response.send_message(f"{res}, Hit or Stand?")
         else:
            await interaction.response.send_message("Game is over. Make new game with /new_game") 
@@ -90,9 +99,9 @@ def run_bot():
     @client.tree.command(name="stand")
     async def stand(interaction: discord.Interaction):
         last_channel_id = interaction.channel_id
-        if(game.ongoing):
-            await game.stand()
-            await interaction.response.send_message(f"Standing. Current score: {game.score}")
+        if(game.round.ongoing):
+            await game.round.stand()
+            await interaction.response.send_message(f"Standing. Current score: {game.round.score}")
         else:
            await interaction.response.send_message("Game is over. Make new game with /new_game")
         
