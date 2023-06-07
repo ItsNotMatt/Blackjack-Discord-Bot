@@ -3,9 +3,22 @@ import asyncio
 import deck
 import player
 
+
+def find_current(id: int, games: []):
+    for g in games:
+            if id in g.players:
+                return g
+    return None 
+
+def del_current(id: int, games: []):
+    for i, g in enumerate(games):
+        if id in g.players:
+            games.pop(i)
+            return
+
 class Game:
     def __init__(self, players: [int]) -> None:
-        self.round = Round(players[0])
+        self.round = Round(players[0], self)
         self.players =  list(players)
         self.player = player.Player(players[0]) 
         self.player.change_money(-50.0)
@@ -25,11 +38,10 @@ class Game:
 
 
 class Round:
-    #need to make dealer score
-    #need to make it so u can hit until you are satisfied or until you go over 21
-    def __init__(self, user: int) -> None:
+    def __init__(self, user: int, game: Game) -> None:
         self.end_condition = ""
         self.ongoing = True
+        self.game = game
 
         self.deck = deck.make_deck() 
         (key, value) = deck.get_random(self.deck)
@@ -57,6 +69,16 @@ class Round:
         print(f"New card: {card[0]}\nScore:{self.score}")
         await self.check_score()
 
+    async def stand(self):
+        await self.check_dealers_hand()
+        print(f"Dealers hand: {self.dealer_score}, Your score: {self.score}")
+        if self.score > self.dealer_score:
+            self.end_condition = "beat_dealer"
+            await self.end_round(True)
+        else:
+            self.end_condition = "dealer_won"
+            await self.end_round(False)
+
     async def check_score(self):
         print("Score is:", self.score)
         if self.score > 21:
@@ -75,20 +97,10 @@ class Round:
         else:
             return
 
-    async def stand(self):
-        await self.check_dealers_hand()
-        print(f"Dealers hand: {self.dealer_score}, Your score: {self.score}")
-        if self.score > self.dealer_score:
-            self.end_condition = "beat_dealer"
-            await self.end_round(True)
-        else:
-            self.end_condition = "dealer_won"
-            await self.end_round(False)
-
     async def check_dealers_hand(self):
         if self.dealer_score > 21:
             self.end_condition = "dealer_bust"
-            await self.end_round(False)
+            await self.end_round(True)
         elif self.dealer_score <= 16:
             print("Current hand is less than 17:", self.dealer_score)
             (k, v) = deck.get_random(self.deck)
@@ -104,14 +116,14 @@ class Round:
         res = "Your hand: "
         for s in self.player_hand:
             res += s[0]
-            res += ", "
+            res += " "
         return f"{res}"
 
     async def end_round(self, won: bool):
         if won:
-            await bot.won_round()
+            await bot.won_round(self.game)
         else:
-            await bot.lost_round()
+            await bot.lost_round(self.game)
         self.ongoing = False
         
 
