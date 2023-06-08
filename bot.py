@@ -41,12 +41,7 @@ async def lost_round(game: Game):
     await channel.send(f"You lost this round with a score of {game.round.score}\n Money: {game.player.money}")
 
 def run_bot():
-    TOKEN = 'MTA5MjE0MDk1MTY3OTUzMzA2Ng.G0XIiJ.MfcsWnbCR-LtasZ6I0DaS381c8puhBkuGax9y0'
-
-    # intents = discord.Intents.all()
-    # intents.message_content = True
-    # client = discord.Client(intents=intents)
-    #client = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+    TOKEN = ''
 
     @client.event
     async def on_ready():
@@ -57,7 +52,7 @@ def run_bot():
             print(e)
 
     @client.event
-    async def on_message(message):
+    async def on_message(message): #expandable to add other commands outside of / commands
         if message.author == client.user:
             return
         if message.content[0] != '>':
@@ -82,7 +77,7 @@ def run_bot():
 
     @client.tree.command(name="new_game")
     async def new_game(interaction: discord.Interaction, mentioned_user: discord.Member = None):
-        mentioned_id = mentioned_user.id if mentioned_user else 0
+        mentioned_id = mentioned_user.id if mentioned_user else 0 #setup to add multiplayer easily
         global last_channel_id
         last_channel_id = interaction.channel_id
 

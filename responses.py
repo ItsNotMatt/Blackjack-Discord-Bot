@@ -1,6 +1,5 @@
 import random
 
-
 commands = ["hello", "roll", "help"]
 
 def get_response(message) -> str:
@@ -14,9 +13,6 @@ def get_response(message) -> str:
     
     if msg == 'help':
         return 'Commands: ', commands
-    
-    if msg.startswith('del') or msg.startswith('delete'):
-        return 'Under development'
     
     if msg.startswith('p '):
         p_msg = msg[2:]

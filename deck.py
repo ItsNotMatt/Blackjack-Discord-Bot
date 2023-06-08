@@ -10,7 +10,7 @@ def make_deck():
     return deck
 
 def get_random(deck) -> (str, int):
-    rand = random.randint(1, 54)
+    rand = random.randint(1, 52)
     count = 0
     for key, value in deck.items():
         if count == rand:
