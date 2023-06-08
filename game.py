@@ -24,6 +24,10 @@ class Game:
         self.player.change_money(-50.0)
         self.ongoing = True
 
+    def next_round(self):
+        self.player.change_money(-50.0)
+        self.round = Round(self.players[0], self)
+
     def earnings(self):
         print("End Condition:", self.round.end_condition)
         if self.round.end_condition == "blackjack":# soon to change by bet amount * something
@@ -35,6 +39,11 @@ class Game:
             self.player.change_money(100.0)
         else:
             print("err")
+
+        if self.player.money <= 0:
+            print("player out of money")
+            asyncio.create_task(bot.end_game(self))
+            self.ongoing = False
 
 
 class Round:

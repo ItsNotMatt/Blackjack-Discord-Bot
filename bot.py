@@ -23,15 +23,22 @@ async def send_message(message):
     channel = client.get_channel(last_channel_id)
     await channel.send(message)
 
+async def end_game(game: Game):
+    await client.get_channel(last_channel_id).send("Game Over: Outta money")
+    for i, g in enumerate(games):
+        if g in games:
+            games.pop(i)
+            print("Games:", games)
+
 async def won_round(game: Game):
     game.earnings()
     channel = client.get_channel(last_channel_id)
-    await channel.send(f"You won this round with a score of {game.round.score}")
+    await channel.send(f"You won this round with a score of {game.round.score}\n Money: {game.player.money}")
 
 async def lost_round(game: Game):
     game.earnings()
     channel = client.get_channel(last_channel_id)
-    await channel.send(f"You lost this round with a score of {game.round.score}")
+    await channel.send(f"You lost this round with a score of {game.round.score}\n Money: {game.player.money}")
 
 def run_bot():
     TOKEN = 'MTA5MjE0MDk1MTY3OTUzMzA2Ng.G0XIiJ.MfcsWnbCR-LtasZ6I0DaS381c8puhBkuGax9y0'
@@ -86,7 +93,12 @@ def run_bot():
 
     @client.tree.command(name="next_round")
     async def next_round(interaction: discord.Interaction):
-        pass
+        game = gm.find_current(interaction.user.id, games)
+        if game is not None and game.round.ongoing == False:
+            game.next_round()#trying to switch it from next game to next round
+            await interaction.response.send_message(f"Next Round:{game.round.get_hands()}")
+        else:
+            await interaction.response.send_message("Game not active, try /new_game")
 
 
     @client.tree.command(name="hit")
@@ -94,26 +106,26 @@ def run_bot():
         last_channel_id = interaction.channel_id
 
         #need to find specific game first so multiple games can be ongoing
-        curr_game = gm.find_current(interaction.user.id, games)
+        game = gm.find_current(interaction.user.id, games)
         
-        if curr_game is not None and curr_game.round.ongoing:
-           await curr_game.round.hit()
-           res = curr_game.round.get_hands()
+        if game is not None and game.round.ongoing:
+           await game.round.hit()
+           res = game.round.get_hands()
            await interaction.response.send_message(f"{res}, Hit or Stand?")
         else:
-           await interaction.response.send_message("Game is over. Make new game with /new_game") 
+           await interaction.response.send_message("Game is over or current round is over. use /new_game or /next_round") 
 
     @client.tree.command(name="stand")
     async def stand(interaction: discord.Interaction):
         last_channel_id = interaction.channel_id
         
-        curr_game = gm.find_current(interaction.user.id, games)
+        game = gm.find_current(interaction.user.id, games)
 
-        if curr_game is not None and curr_game.round.ongoing:
-            await curr_game.round.stand()
-            await interaction.response.send_message(f"Standing. Current score: {curr_game.round.score}")
+        if game is not None and game.round.ongoing:
+            await game.round.stand()
+            await interaction.response.send_message(f"Standing. Current score: {game.round.score}")
         else:
-           await interaction.response.send_message("Game is over. Make new game with /new_game")
+           await interaction.response.send_message("Game is over or current round is over. use /new_game or /next_round") 
         
 
     client.run(TOKEN)
