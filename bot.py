@@ -76,12 +76,14 @@ def run_bot():
 
     @client.tree.command(name="ping")
     async def ping(interaction: discord.Interaction):
+        global last_channel_id
         last_channel_id = interaction.channel_id
         await interaction.response.send_message(f"pong! latency is {client.latency}")
 
     @client.tree.command(name="new_game")
     async def new_game(interaction: discord.Interaction, mentioned_user: discord.Member = None):
         mentioned_id = mentioned_user.id if mentioned_user else 0
+        global last_channel_id
         last_channel_id = interaction.channel_id
 
         gm.del_current(interaction.user.id, games) 
@@ -93,6 +95,9 @@ def run_bot():
 
     @client.tree.command(name="next_round")
     async def next_round(interaction: discord.Interaction):
+        global last_channel_id
+        last_channel_id = interaction.channel_id
+
         game = gm.find_current(interaction.user.id, games)
         if game is not None and game.round.ongoing == False:
             game.next_round()#trying to switch it from next game to next round
@@ -103,6 +108,7 @@ def run_bot():
 
     @client.tree.command(name="hit")
     async def hit(interaction: discord.Interaction):
+        global last_channel_id
         last_channel_id = interaction.channel_id
 
         #need to find specific game first so multiple games can be ongoing
@@ -117,6 +123,7 @@ def run_bot():
 
     @client.tree.command(name="stand")
     async def stand(interaction: discord.Interaction):
+        global last_channel_id
         last_channel_id = interaction.channel_id
         
         game = gm.find_current(interaction.user.id, games)

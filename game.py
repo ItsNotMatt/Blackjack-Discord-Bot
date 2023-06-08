@@ -38,7 +38,7 @@ class Game:
         elif self.round.end_condition == "dealer_bust" or self.round.end_condition == "beat_dealer":
             self.player.change_money(100.0)
         else:
-            print("err")
+            print("Not valid win condition")
 
         if self.player.money <= 0:
             print("player out of money")
